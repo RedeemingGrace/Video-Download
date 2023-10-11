@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Callback</title>
+</head>
+<body>
+        <input type="text" placeholder="Enter URL"><br><br>
+        <button>Download file</button>
+  
+<script>
+    const urlInput = document.querySelector("input");
+    const downloadBtn = document.querySelector("button");
+
+    downloadBtn.addEventListener("click", async () => {
+    try {
+        const response = await fetch(urlInput.value);
+
+        if (!response.ok) {
+        throw new Error("Failed to fetch the file");
+        }
+
+        const file = await response.blob();
+        const filename = getFilenameFromURL(urlInput.value);
+
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(file);
+        link.download = filename;
+        link.click();
+    } catch (error) {
+        alert("Failed to download: " + error.message);
+    }
+    });
+
+    function getFilenameFromURL(url) {
+    const urlParts = url.split("/");
+    return urlParts[urlParts.length - 1];
+    }
+
+  </script>
+</body>
+</html>
