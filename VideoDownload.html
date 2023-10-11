@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Video Downloader</h1>
+  <input type="text" id="videoUrl" placeholder="Enter Video URL">
+  <button onclick="downloadVideoWithCallbacks()">Download with Callbacks</button>
+  <button onclick="downloadVideoWithPromises()">Download with Promises</button>
+  <button onclick="downloadVideoWithAsyncAwait()">Download with Async/Await</button>
+
+  <script>
+    function downloadVideo(url, callback) {
+      const xhr = new XMLHttpRequest();
+      xhr.responseType = 'blob';
+      xhr.open('GET', url, true);
+
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          callback(null, xhr.response);
+        } else {
+          callback(new Error('Failed to download video'), null);
+        }
+      };
+
+      xhr.onerror = function () {
+        callback(new Error('Network error'), null);
+      };
+
+      xhr.send();
+    }
+
+    function playVideo(blob) {
+      const videoUrl = URL.createObjectURL(blob);
+      const videoElement = document.createElement('video');
+      videoElement.controls = true;
+      videoElement.src = videoUrl;
+      document.body.appendChild(videoElement);
+    }
+
+    function downloadVideoWithCallbacks() {
+      const videoUrl = document.getElementById('videoUrl').value;
+      downloadVideo(videoUrl, function (error, blob) {
+        if (error) {
+          console.error(error);
+        } else {
+          playVideo(blob);
+          alert('Video downloaded successfully!');
+        }
+      });
+    }
+
+    function downloadVideoWithPromises() {
+      const videoUrl = document.getElementById('videoUrl').value;
+      return new Promise((resolve, reject) => {
+        downloadVideo(videoUrl, (error, blob) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(blob);
+          }
+        });
+      })
+        .then(blob => {
+          playVideo(blob);
+          alert('Video downloaded successfully!');
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
+
+    async function downloadVideoWithAsyncAwait() {
+      const videoUrl = document.getElementById('videoUrl').value;
+      try {
+        const blob = await new Promise((resolve, reject) => {
+          downloadVideo(videoUrl, (error, blob) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(blob);
+            }
+          });
+        });
+        playVideo(blob);
+        alert('Video downloaded successfully!');
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
